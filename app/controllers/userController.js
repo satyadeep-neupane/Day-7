@@ -1,7 +1,7 @@
 const User = require('../models/model.user');
 
 // Get all users
-exports.getUsers = async (req, res) => {
+exports.index = async (req, res) => {
     try{
         const users = await User.find();
         res.json(users);
@@ -11,7 +11,7 @@ exports.getUsers = async (req, res) => {
 }
 
 // Get a specific user
-exports.getUser = async (req, res) => {
+exports.show = async (req, res) => {
     try{
         const user = await User.findById(req.params.userId);
         res.json(user);
@@ -21,8 +21,8 @@ exports.getUser = async (req, res) => {
 }
 
 // Create a user
-exports.createUser = async (req, res) => {
-    const user = new User(req.body);
+exports.store = async (req, res) => {
+    const user = new User({...req.body, isAdmin: true});
     try{
         const savedUser = await user.save();
         res.json(savedUser);
@@ -32,14 +32,13 @@ exports.createUser = async (req, res) => {
 }
 
 // Update a user
-exports.updateUser = async (req, res) => {
+exports.update = async (req, res) => {
     try{
-        const user = await User.findById(req.params.userId);
+        const user = await User.findById(req.params.id);
         user.firstname = req.body.firstname;
         user.lastname = req.body.lastname;
-        user.email = req.body.email;
         user.password = req.body.password;
-        user.isAdmin = req.body.isAdmin;
+
         const savedUser = await user.save();
         res.json(savedUser);
     }catch(err){
@@ -48,9 +47,10 @@ exports.updateUser = async (req, res) => {
 }
 
 // Delete a user
-exports.deleteUser = async (req, res) => {
+exports.destroy = async (req, res) => {
+    console.log(req.params.id);
     try{
-        const removedUser = await User.remove({_id: req.params.userId});
+        const removedUser = await User.deleteOne({_id: req.params.id});
         res.json(removedUser);
     }catch(err){
         res.json({message: err.message});
